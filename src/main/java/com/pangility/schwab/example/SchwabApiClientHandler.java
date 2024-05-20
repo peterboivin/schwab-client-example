@@ -2,6 +2,7 @@ package com.pangility.schwab.example;
 
 import com.pangility.schwab.api.client.marketdata.EnableSchwabMarketDataApi;
 import com.pangility.schwab.api.client.marketdata.SchwabMarketDataApiClient;
+import com.pangility.schwab.api.client.marketdata.IndexNotFoundException;
 import com.pangility.schwab.api.client.marketdata.SymbolNotFoundException;
 import com.pangility.schwab.api.client.marketdata.model.movers.MoversRequest;
 import com.pangility.schwab.api.client.marketdata.model.movers.MoversResponse;
@@ -52,7 +53,7 @@ public class SchwabApiClientHandler {
                 .build();
         try {
             moversResponse = schwabMarketDataApiClient.fetchMovers(moversRequest);
-        } catch (SymbolNotFoundException e) {
+        } catch (IndexNotFoundException e) {
             // handle the exception
         }
         return moversResponse;
