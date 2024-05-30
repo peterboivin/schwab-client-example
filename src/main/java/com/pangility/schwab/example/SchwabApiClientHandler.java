@@ -2,10 +2,8 @@ package com.pangility.schwab.example;
 
 import com.pangility.schwab.api.client.marketdata.EnableSchwabMarketDataApi;
 import com.pangility.schwab.api.client.marketdata.SchwabMarketDataApiClient;
-import com.pangility.schwab.api.client.marketdata.IndexNotFoundException;
-import com.pangility.schwab.api.client.marketdata.SymbolNotFoundException;
 import com.pangility.schwab.api.client.marketdata.model.movers.MoversRequest;
-import com.pangility.schwab.api.client.marketdata.model.movers.MoversResponse;
+import com.pangility.schwab.api.client.marketdata.model.movers.Screener;
 import com.pangility.schwab.api.client.marketdata.model.quotes.QuoteResponse;
 import com.pangility.schwab.api.client.oauth2.SchwabAccount;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @EnableSchwabMarketDataApi
@@ -35,27 +35,15 @@ public class SchwabApiClientHandler {
     }
 
     @GetMapping("/quote")
-    public QuoteResponse callQuote(@RequestParam String symbol) {
-        QuoteResponse quoteResponse = null;
-        try {
-            quoteResponse = schwabMarketDataApiClient.fetchQuote(symbol);
-        } catch (SymbolNotFoundException e) {
-            // handle the exception
-        }
-        return quoteResponse;
+    public Mono<QuoteResponse> callQuote(@RequestParam String symbol) {
+        return schwabMarketDataApiClient.fetchQuoteToMono(symbol);
     }
 
     @GetMapping("/movers/nyse")
-    public MoversResponse callMovers() {
-        MoversResponse moversResponse = null;
+    public Flux<Screener> callMovers() {
         MoversRequest moversRequest = MoversRequest.Builder.moversRequest()
                 .withIndexSymbol(MoversRequest.IndexSymbol.NYSE)
                 .build();
-        try {
-            moversResponse = schwabMarketDataApiClient.fetchMovers(moversRequest);
-        } catch (IndexNotFoundException e) {
-            // handle the exception
-        }
-        return moversResponse;
+        return schwabMarketDataApiClient.fetchMoversToFlux(moversRequest);
     }
 }
